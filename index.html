@@ -15,9 +15,8 @@
   ============================================================
   WIDGET DE CATÁLOGO — SociableKIT (plan gratis)
   ============================================================
-  Instagram: ya conectado.
-  TikTok: pendiente — cuando tengas el código de SociableKIT para
-  @karenvanessaalvar92, pégalo aquí abajo, justo después del de Instagram.
+  Instagram conectado. TikTok no se muestra en el feed (decisión final).
+  Límite de posts (6) se configura en el panel de SociableKIT, no aquí.
 -->
 <script src="https://widgets.sociablekit.com/instagram-feed/widget.js" defer></script>
 
@@ -221,7 +220,7 @@ const {
 // ============================================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwO4uDxVPKmwADqyHqD4v13Jsso-SmLbhQ-eANYyPab61GIuTTG3NkpHJqkFTtGzq_6/exec";
 // Ruta secreta del panel de administración — cámbiala por algo que solo tú conozcas.
-const ADMIN_ROUTE = "gestion-fc-2026";
+const ADMIN_ROUTE = "karen";
 // TODO Jeff: reemplazar por el usuario real de TikTok de Fais Cute
 const TIKTOK_URL = "https://www.tiktok.com/@karenvanessaalvar92";
 
@@ -255,7 +254,7 @@ const DICT = {
     hero_cta: "Reservar una cita",
     catalogo_eyebrow: "Nuestro trabajo",
     catalogo_title: "Catálogo",
-    catalogo_loading: "El catálogo de Instagram y TikTok aparecerá aquí una vez conectado el widget.",
+    catalogo_loading: "El catálogo de Instagram aparecerá aquí una vez conectado el widget.",
     reservar_eyebrow: "Cita",
     reservar_title: "Reservar",
     step1: "Servicio",
@@ -303,7 +302,7 @@ const DICT = {
     hero_cta: "Réserver un rendez-vous",
     catalogo_eyebrow: "Notre travail",
     catalogo_title: "Catalogue",
-    catalogo_loading: "Le catalogue Instagram et TikTok apparaîtra ici une fois le widget connecté.",
+    catalogo_loading: "Le catalogue Instagram apparaîtra ici une fois le widget connecté.",
     reservar_eyebrow: "Rendez-vous",
     reservar_title: "Réserver",
     step1: "Service",
@@ -351,7 +350,7 @@ const DICT = {
     hero_cta: "Book an appointment",
     catalogo_eyebrow: "Our work",
     catalogo_title: "Catalog",
-    catalogo_loading: "The Instagram and TikTok catalog will appear here once the widget is connected.",
+    catalogo_loading: "The Instagram catalog will appear here once the widget is connected.",
     reservar_eyebrow: "Appointment",
     reservar_title: "Book",
     step1: "Service",
@@ -439,7 +438,7 @@ function Header({
 }
 
 // ============================================================
-// Catálogo (widgets de SociableKIT: Instagram + TikTok)
+// Catálogo (widget de SociableKIT: Instagram)
 // ============================================================
 function Catalogo({
   t
@@ -454,10 +453,7 @@ function Catalogo({
   }, t.catalogo_title), /*#__PURE__*/React.createElement("div", {
     className: "sk-instagram-feed",
     "data-embed-id": "25703585"
-  }), /*#__PURE__*/React.createElement("div", {
-    id: "catalogo-tiktok-pendiente",
-    className: "catalogo-pendiente"
-  }, "TikTok — próximamente"));
+  }));
 }
 
 // ============================================================

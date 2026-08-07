@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fais Cute</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Jost:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!--
+  ============================================================
+  WIDGET DE CATÁLOGO (Instagram + TikTok) — EmbedSocial
+  ============================================================
+  1. Crea una cuenta en https://embedsocial.com
+  2. Conecta @fais_cute (Instagram) y tu cuenta de TikTok
+  3. Crea un widget tipo "Feed" y copia el <script> que te dan
+  4. Pega ese <script> aquí abajo, sustituyendo este comentario.
+  El contenedor con id="embedsocial-catalogo" más abajo en el body
+  es donde EmbedSocial inyectará las fotos/videos automáticamente.
+-->
+
+<style>
+  :root{
+    --bg: #211E1C;
+    --panel: #2B2724;
+    --panel-light: #34302C;
+    --border: rgba(245,240,235,0.28);
+    --border-strong: rgba(245,240,235,0.55);
+    --text: #F5F0EB;
+    --muted: #B8ADA3;
+    --accent: #CBA38B;
+    --accent-dark: #A9805F;
+    --danger: #C9605A;
+    --radius: 10px;
+    --serif: 'Bodoni Moda', serif;
+    --sans: 'Jost', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{-webkit-font-smoothing:antialiased;}
+  #root{min-height:100vh;}
+  a{color:inherit;}
+
+  .container{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- Header ---------- */
+  .site-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:28px 0;border-bottom:1px solid var(--border);
+  }
+  .logo{
+    font-family:var(--serif);font-size:28px;letter-spacing:0.14em;
+    text-transform:uppercase;font-weight:600;
+  }
+  .lang-switch{display:flex;gap:6px;}
+  .lang-switch button{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    font-family:var(--mono);font-size:12px;letter-spacing:0.05em;
+    padding:6px 10px;border-radius:6px;cursor:pointer;transition:all .2s;
+  }
+  .lang-switch button.active{border-color:var(--accent);color:var(--accent);}
+  .lang-switch button:hover{border-color:var(--border-strong);color:var(--text);}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:72px 0 56px;text-align:center;border-bottom:1px solid var(--border);}
+  .hero h1{
+    font-family:var(--serif);font-size:clamp(40px,7vw,72px);
+    letter-spacing:0.08em;text-transform:uppercase;margin:0 0 14px;
+    line-height:1.05;font-weight:600;
+  }
+  .hero p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto 28px;}
+  .cta-btn{
+    display:inline-block;background:var(--accent);color:#20140C;border:none;
+    font-family:var(--sans);font-weight:600;font-size:14px;letter-spacing:0.04em;
+    text-transform:uppercase;padding:14px 32px;border-radius:999px;cursor:pointer;
+    transition:transform .15s, background .2s;
+  }
+  .cta-btn:hover{background:var(--accent-dark);transform:translateY(-1px);}
+  .cta-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+  .cta-btn.ghost{background:transparent;border:1px solid var(--border-strong);color:var(--text);}
+  .cta-btn.ghost:hover{border-color:var(--accent);color:var(--accent);background:transparent;}
+
+  /* ---------- Section shell ---------- */
+  section.block{padding:64px 0;border-bottom:1px solid var(--border);}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:0.15em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:10px;
+  }
+  h2.block-title{
+    font-family:var(--serif);font-size:clamp(28px,4vw,40px);letter-spacing:0.05em;
+    text-transform:uppercase;margin:0 0 36px;font-weight:600;
+  }
+
+  /* ---------- Catálogo ---------- */
+  #embedsocial-catalogo{
+    min-height:240px;border:1px dashed var(--border-strong);border-radius:var(--radius);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);
+    font-family:var(--mono);font-size:13px;text-align:center;padding:24px;
+  }
+
+  /* ---------- Servicios (cards tipo "lista de precios") ---------- */
+  .servicios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+  .servicio-card{
+    border:1px solid var(--border-strong);border-radius:var(--radius);
+    padding:18px 20px;display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;background:var(--panel);transition:all .15s;
+  }
+  .servicio-card:hover{border-color:var(--accent);}
+  .servicio-card.selected{border-color:var(--accent);background:var(--panel-light);box-shadow:0 0 0 1px var(--accent) inset;}
+  .servicio-nombre{font-size:14px;letter-spacing:0.06em;text-transform:uppercase;}
+  .servicio-precio{font-family:var(--mono);color:var(--accent);font-size:15px;border:1px solid var(--border-strong);border-radius:8px;padding:6px 12px;}
+
+  /* ---------- Booking steps ---------- */
+  .steps-nav{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;}
+  .step-pill{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;
+    color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:6px 14px;
+  }
+  .step-pill.active{color:var(--accent);border-color:var(--accent);}
+  .step-pill.done{color:var(--text);border-color:var(--border-strong);}
+
+  input[type="date"], input[type="text"], input[type="tel"], input[type="email"]{
+    background:var(--panel);border:1px solid var(--border-strong);color:var(--text);
+    font-family:var(--sans);font-size:14px;padding:12px 14px;border-radius:8px;width:100%;
+  }
+  input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:0.05em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .form-row{margin-bottom:18px;max-width:420px;}
+
+  .slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:28px;}
+  .slot-box{
+    border:1px solid var(--border-strong);border-radius:var(--radius);
+    padding:16px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:14px;
+    transition:all .15s;background:var(--panel);
+  }
+  .slot-box.selected{border-color:var(--accent);background:var(--panel-light);color:var(--accent);}
+  .slot-box.disabled{opacity:0.3;cursor:not-allowed;text-decoration:line-through;}
+  .slot-box:not(.disabled):hover{border-color:var(--accent);}
+
+  .empty-note{color:var(--muted);font-size:14px;font-style:italic;}
+
+  .confirm-box{
+    border:1px solid var(--accent);border-radius:var(--radius);padding:28px;
+    background:var(--panel);max-width:480px;
+  }
+  .confirm-box h3{font-family:var(--serif);letter-spacing:0.05em;text-transform:uppercase;margin-top:0;}
+
+  /* ---------- Footer ---------- */
+  footer{padding:32px 0;text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:0.05em;}
+
+  /* ---------- Admin ---------- */
+  .admin-login{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+  .admin-login form{background:var(--panel);border:1px solid var(--border-strong);border-radius:var(--radius);padding:36px;width:320px;}
+  .admin-shell{padding:32px 0;}
+  .admin-tabs{display:flex;gap:10px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:14px;}
+  .admin-tab{
+    background:transparent;border:none;color:var(--muted);font-family:var(--mono);
+    font-size:12px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;padding:8px 4px;
+  }
+  .admin-tab.active{color:var(--accent);border-bottom:2px solid var(--accent);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--border);}
+  th{font-family:var(--mono);color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:0.05em;}
+  .small-btn{
+    background:transparent;border:1px solid var(--border-strong);color:var(--text);
+    font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;
+  }
+  .small-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .small-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+  .error-msg{color:var(--danger);font-size:13px;margin-top:8px;}
+  .inline-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;}
+  .inline-form .form-row{margin-bottom:0;max-width:180px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+const {
+  useState,
+  useEffect,
+  useCallback
+} = React;
+
+// ============================================================
+// CONFIGURACIÓN — RELLENAR DESPUÉS DE DESPLEGAR EL APPS SCRIPT
+// ============================================================
+const GAS_URL = "https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec";
+// Ruta secreta del panel de administración — cámbiala por algo que solo tú conozcas.
+const ADMIN_ROUTE = "gestion-fc-2026";
+
+// ============================================================
+// Cliente JSONP para llamar al Apps Script (mismo patrón que HP Manager)
+// ============================================================
+let jsonpCounter = 0;
+function gasCall(action, params) {
+  return new Promise((resolve, reject) => {
+    const callbackName = "gasCb_" + jsonpCounter++;
+    const query = new URLSearchParams({
+      action,
+      callback: callbackName,
+      ...params
+    });
+    const script = document.createElement("script");
+    script.src = GAS_URL + "?" + query.toString();
+    window[callbackName] = data => {
+      resolve(data);
+      delete window[callbackName];
+      script.remove();
+    };
+    script.onerror = () => reject(new Error("Error de red al llamar a " + action));
+    document.body.appendChild(script);
+  });
+}
+
+// ============================================================
+// i18n
+// ============================================================
+const DICT = {
+  es: {
+    nav_catalogo: "Catálogo",
+    nav_reservar: "Reservar",
+    hero_title: "Fais Cute",
+    hero_sub: "Manicure y pedicure a tu medida",
+    hero_cta: "Reservar una cita",
+    catalogo_eyebrow: "Nuestro trabajo",
+    catalogo_title: "Catálogo",
+    catalogo_loading: "El catálogo de Instagram y TikTok aparecerá aquí una vez conectado el widget.",
+    reservar_eyebrow: "Cita",
+    reservar_title: "Reservar",
+    step1: "Servicio",
+    step2: "Fecha",
+    step3: "Hora",
+    step4: "Tus datos",
+    elige_servicio: "Elige un servicio",
+    elige_fecha: "Elige una fecha",
+    elige_hora: "Elige un horario disponible",
+    dia_pausado: "Ese día no hay servicio.",
+    sin_horarios: "No quedan horarios disponibles ese día, prueba otra fecha.",
+    nombre: "Nombre completo",
+    telefono: "Teléfono (WhatsApp/SMS)",
+    email: "Email (opcional)",
+    confirmar: "Confirmar cita",
+    enviando: "Enviando...",
+    confirmada_title: "¡Cita confirmada!",
+    confirmada_body: "Te esperamos el",
+    error_generico: "Algo salió mal, intenta de nuevo.",
+    footer: "Síguenos",
+    volver: "Elegir otra fecha/hora",
+    admin_password: "Contraseña",
+    admin_entrar: "Entrar",
+    admin_error: "Contraseña incorrecta",
+    admin_tab_servicios: "Servicios",
+    admin_tab_calendario: "Calendario",
+    admin_nuevo_servicio: "Nuevo servicio",
+    admin_agregar: "Agregar",
+    admin_precio: "Precio",
+    admin_activo: "Activo",
+    admin_guardar: "Guardar",
+    admin_bloquear: "Bloquear horario",
+    admin_motivo: "Motivo (opcional)",
+    admin_pausar_dia: "Pausar día completo",
+    admin_reanudar: "Reanudar",
+    admin_citas_proximas: "Próximas citas",
+    admin_cliente: "Cliente",
+    admin_cancelar: "Cancelar"
+  },
+  fr: {
+    nav_catalogo: "Catalogue",
+    nav_reservar: "Réserver",
+    hero_title: "Fais Cute",
+    hero_sub: "Manucure et pédicure sur mesure",
+    hero_cta: "Réserver un rendez-vous",
+    catalogo_eyebrow: "Notre travail",
+    catalogo_title: "Catalogue",
+    catalogo_loading: "Le catalogue Instagram et TikTok apparaîtra ici une fois le widget connecté.",
+    reservar_eyebrow: "Rendez-vous",
+    reservar_title: "Réserver",
+    step1: "Service",
+    step2: "Date",
+    step3: "Heure",
+    step4: "Vos coordonnées",
+    elige_servicio: "Choisissez un service",
+    elige_fecha: "Choisissez une date",
+    elige_hora: "Choisissez un créneau disponible",
+    dia_pausado: "Pas de service ce jour-là.",
+    sin_horarios: "Plus de créneaux disponibles ce jour, essayez une autre date.",
+    nombre: "Nom complet",
+    telefono: "Téléphone (WhatsApp/SMS)",
+    email: "Email (optionnel)",
+    confirmar: "Confirmer le rendez-vous",
+    enviando: "Envoi...",
+    confirmada_title: "Rendez-vous confirmé !",
+    confirmada_body: "On vous attend le",
+    error_generico: "Une erreur est survenue, réessayez.",
+    footer: "Suivez-nous",
+    volver: "Choisir une autre date/heure",
+    admin_password: "Mot de passe",
+    admin_entrar: "Entrer",
+    admin_error: "Mot de passe incorrect",
+    admin_tab_servicios: "Services",
+    admin_tab_calendario: "Calendrier",
+    admin_nuevo_servicio: "Nouveau service",
+    admin_agregar: "Ajouter",
+    admin_precio: "Prix",
+    admin_activo: "Actif",
+    admin_guardar: "Enregistrer",
+    admin_bloquear: "Bloquer un créneau",
+    admin_motivo: "Motif (optionnel)",
+    admin_pausar_dia: "Fermer toute la journée",
+    admin_reanudar: "Rouvrir",
+    admin_citas_proximas: "Prochains rendez-vous",
+    admin_cliente: "Client",
+    admin_cancelar: "Annuler"
+  },
+  en: {
+    nav_catalogo: "Catalog",
+    nav_reservar: "Book",
+    hero_title: "Fais Cute",
+    hero_sub: "Manicure and pedicure, made for you",
+    hero_cta: "Book an appointment",
+    catalogo_eyebrow: "Our work",
+    catalogo_title: "Catalog",
+    catalogo_loading: "The Instagram and TikTok catalog will appear here once the widget is connected.",
+    reservar_eyebrow: "Appointment",
+    reservar_title: "Book",
+    step1: "Service",
+    step2: "Date",
+    step3: "Time",
+    step4: "Your details",
+    elige_servicio: "Choose a service",
+    elige_fecha: "Choose a date",
+    elige_hora: "Choose an available time slot",
+    dia_pausado: "No service that day.",
+    sin_horarios: "No slots left that day, try another date.",
+    nombre: "Full name",
+    telefono: "Phone (WhatsApp/SMS)",
+    email: "Email (optional)",
+    confirmar: "Confirm appointment",
+    enviando: "Sending...",
+    confirmada_title: "Appointment confirmed!",
+    confirmada_body: "See you on",
+    error_generico: "Something went wrong, please try again.",
+    footer: "Follow us",
+    volver: "Choose another date/time",
+    admin_password: "Password",
+    admin_entrar: "Enter",
+    admin_error: "Wrong password",
+    admin_tab_servicios: "Services",
+    admin_tab_calendario: "Calendar",
+    admin_nuevo_servicio: "New service",
+    admin_agregar: "Add",
+    admin_precio: "Price",
+    admin_activo: "Active",
+    admin_guardar: "Save",
+    admin_bloquear: "Block a time slot",
+    admin_motivo: "Reason (optional)",
+    admin_pausar_dia: "Close the whole day",
+    admin_reanudar: "Reopen",
+    admin_citas_proximas: "Upcoming appointments",
+    admin_cliente: "Client",
+    admin_cancelar: "Cancel"
+  }
+};
+function nombreServicio(servicio, lang) {
+  if (lang === "fr") return servicio.Nombre_FR || servicio.Nombre_ES;
+  if (lang === "en") return servicio.Nombre_EN || servicio.Nombre_ES;
+  return servicio.Nombre_ES;
+}
+
+// ============================================================
+// Header con selector de idioma
+// ============================================================
+function Header({
+  lang,
+  setLang
+}) {
+  return /*#__PURE__*/React.createElement("header", {
+    className: "site-header container"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "logo"
+  }, "Fais Cute"), /*#__PURE__*/React.createElement("div", {
+    className: "lang-switch"
+  }, ["es", "fr", "en"].map(l => /*#__PURE__*/React.createElement("button", {
+    key: l,
+    className: lang === l ? "active" : "",
+    onClick: () => setLang(l)
+  }, l.toUpperCase()))));
+}
+
+// ============================================================
+// Catálogo (contenedor para el widget de EmbedSocial)
+// ============================================================
+function Catalogo({
+  t
+}) {
+  return /*#__PURE__*/React.createElement("section", {
+    className: "block container",
+    id: "catalogo"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "eyebrow"
+  }, t.catalogo_eyebrow), /*#__PURE__*/React.createElement("h2", {
+    className: "block-title"
+  }, t.catalogo_title), /*#__PURE__*/React.createElement("div", {
+    id: "embedsocial-catalogo",
+    className: "embedsocial-hashtag",
+    "data-ref": "TU_WIDGET_REF_AQUI"
+  }, t.catalogo_loading));
+}
+
+// ============================================================
+// Flujo de reserva
+// ============================================================
+function Reservar({
+  t,
+  lang
+}) {
+  const [servicios, setServicios] = useState([]);
+  const [servicioSel, setServicioSel] = useState(null);
+  const [fecha, setFecha] = useState("");
+  const [slots, setSlots] = useState(null);
+  const [diaPausado, setDiaPausado] = useState(false);
+  const [slotSel, setSlotSel] = useState(null);
+  const [form, setForm] = useState({
+    nombre: "",
+    telefono: "",
+    email: ""
+  });
+  const [enviando, setEnviando] = useState(false);
+  const [confirmado, setConfirmado] = useState(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    gasCall("getServicios", {}).then(r => {
+      if (r.ok) setServicios(r.servicios);
+    });
+  }, []);
+  useEffect(() => {
+    if (!fecha) {
+      setSlots(null);
+      return;
+    }
+    setSlots(null);
+    setSlotSel(null);
+    gasCall("getSlotsDisponibles", {
+      fecha
+    }).then(r => {
+      if (r.ok) {
+        setSlots(r.slots);
+        setDiaPausado(!!r.diaPausado);
+      }
+    });
+  }, [fecha]);
+  const minDate = new Date().toISOString().slice(0, 10);
+  const handleSubmit = () => {
+    if (!servicioSel || !fecha || !slotSel || !form.nombre || !form.telefono) return;
+    setEnviando(true);
+    setError("");
+    gasCall("crearCita", {
+      fecha,
+      horaInicio: slotSel.inicio,
+      horaFin: slotSel.fin,
+      servicioId: servicioSel.ID,
+      servicioNombre: nombreServicio(servicioSel, lang),
+      clienteNombre: form.nombre,
+      clienteTelefono: form.telefono,
+      clienteEmail: form.email
+    }).then(r => {
+      setEnviando(false);
+      if (r.ok) {
+        setConfirmado({
+          fecha,
+          slot: slotSel,
+          servicio: servicioSel
+        });
+      } else {
+        setError(r.error || t.error_generico);
+      }
+    }).catch(() => {
+      setEnviando(false);
+      setError(t.error_generico);
+    });
+  };
+  if (confirmado) {
+    return /*#__PURE__*/React.createElement("section", {
+      className: "block container",
+      id: "reservar"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "confirm-box"
+    }, /*#__PURE__*/React.createElement("h3", null, t.confirmada_title), /*#__PURE__*/React.createElement("p", null, t.confirmada_body, " ", /*#__PURE__*/React.createElement("strong", null, confirmado.fecha), " — ", confirmado.slot.inicio, " a ", confirmado.slot.fin, "."), /*#__PURE__*/React.createElement("p", {
+      style: {
+        color: "var(--muted)",
+        fontSize: "14px"
+      }
+    }, nombreServicio(confirmado.servicio, lang))));
+  }
+  const step = !servicioSel ? 1 : !fecha ? 2 : !slotSel ? 3 : 4;
+  return /*#__PURE__*/React.createElement("section", {
+    className: "block container",
+    id: "reservar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "eyebrow"
+  }, t.reservar_eyebrow), /*#__PURE__*/React.createElement("h2", {
+    className: "block-title"
+  }, t.reservar_title), /*#__PURE__*/React.createElement("div", {
+    className: "steps-nav"
+  }, [t.step1, t.step2, t.step3, t.step4].map((label, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    className: "step-pill " + (step === i + 1 ? "active" : step > i + 1 ? "done" : "")
+  }, i + 1, ". ", label))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 36
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "empty-note",
+    style: {
+      marginBottom: 14
+    }
+  }, t.elige_servicio), /*#__PURE__*/React.createElement("div", {
+    className: "servicios-grid"
+  }, servicios.map(s => /*#__PURE__*/React.createElement("div", {
+    key: s.ID,
+    className: "servicio-card " + (servicioSel && servicioSel.ID === s.ID ? "selected" : ""),
+    onClick: () => {
+      setServicioSel(s);
+      setFecha("");
+      setSlotSel(null);
+      setConfirmado(null);
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "servicio-nombre"
+  }, nombreServicio(s, lang)), /*#__PURE__*/React.createElement("span", {
+    className: "servicio-precio"
+  }, "$" + s.Precio))))), servicioSel && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 36
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "empty-note",
+    style: {
+      marginBottom: 14
+    }
+  }, t.elige_fecha), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    min: minDate,
+    value: fecha,
+    onChange: e => setFecha(e.target.value)
+  }))), servicioSel && fecha && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 36
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "empty-note",
+    style: {
+      marginBottom: 14
+    }
+  }, t.elige_hora), slots === null && /*#__PURE__*/React.createElement("p", {
+    className: "empty-note"
+  }, "…"), slots && diaPausado && /*#__PURE__*/React.createElement("p", {
+    className: "empty-note"
+  }, t.dia_pausado), slots && !diaPausado && slots.every(s => !s.disponible) && /*#__PURE__*/React.createElement("p", {
+    className: "empty-note"
+  }, t.sin_horarios), slots && !diaPausado && /*#__PURE__*/React.createElement("div", {
+    className: "slots-grid"
+  }, slots.map(s => /*#__PURE__*/React.createElement("div", {
+    key: s.inicio,
+    className: "slot-box " + (!s.disponible ? "disabled" : slotSel && slotSel.inicio === s.inicio ? "selected" : ""),
+    onClick: () => s.disponible && setSlotSel(s)
+  }, s.inicio, " – ", s.fin)))), servicioSel && fecha && slotSel && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.nombre), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: form.nombre,
+    onChange: e => setForm({
+      ...form,
+      nombre: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.telefono), /*#__PURE__*/React.createElement("input", {
+    type: "tel",
+    placeholder: "+33...",
+    value: form.telefono,
+    onChange: e => setForm({
+      ...form,
+      telefono: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.email), /*#__PURE__*/React.createElement("input", {
+    type: "email",
+    value: form.email,
+    onChange: e => setForm({
+      ...form,
+      email: e.target.value
+    })
+  })), error && /*#__PURE__*/React.createElement("p", {
+    className: "error-msg"
+  }, error), /*#__PURE__*/React.createElement("button", {
+    className: "cta-btn",
+    disabled: enviando || !form.nombre || !form.telefono,
+    onClick: handleSubmit
+  }, enviando ? t.enviando : t.confirmar)));
+}
+
+// ============================================================
+// Footer
+// ============================================================
+function Footer({
+  t
+}) {
+  return /*#__PURE__*/React.createElement("footer", null, t.footer, " ", /*#__PURE__*/React.createElement("a", {
+    href: "https://www.instagram.com/fais_cute/",
+    target: "_blank",
+    rel: "noreferrer"
+  }, "@fais_cute"));
+}
+
+// ============================================================
+// Sitio público
+// ============================================================
+function SitioPublico() {
+  const [lang, setLang] = useState("fr");
+  const t = DICT[lang];
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Header, {
+    lang: lang,
+    setLang: setLang
+  }), /*#__PURE__*/React.createElement("section", {
+    className: "hero container"
+  }, /*#__PURE__*/React.createElement("h1", null, t.hero_title), /*#__PURE__*/React.createElement("p", null, t.hero_sub), /*#__PURE__*/React.createElement("button", {
+    className: "cta-btn",
+    onClick: () => document.getElementById("reservar").scrollIntoView({
+      behavior: "smooth"
+    })
+  }, t.hero_cta)), /*#__PURE__*/React.createElement(Catalogo, {
+    t: t
+  }), /*#__PURE__*/React.createElement(Reservar, {
+    t: t,
+    lang: lang
+  }), /*#__PURE__*/React.createElement(Footer, {
+    t: t
+  }));
+}
+
+// ============================================================
+// Panel de administración (ruta oculta)
+// ============================================================
+function AdminLogin({
+  t,
+  onLogin
+}) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const submit = e => {
+    e.preventDefault();
+    setCargando(true);
+    gasCall("adminLogin", {
+      password
+    }).then(r => {
+      setCargando(false);
+      if (r.ok) onLogin(r.token);else setError(r.error || t.admin_error);
+    });
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "admin-login"
+  }, /*#__PURE__*/React.createElement("form", {
+    onSubmit: submit
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.admin_password), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    value: password,
+    onChange: e => setPassword(e.target.value),
+    autoFocus: true
+  })), error && /*#__PURE__*/React.createElement("p", {
+    className: "error-msg"
+  }, error), /*#__PURE__*/React.createElement("button", {
+    className: "cta-btn",
+    style: {
+      width: "100%"
+    },
+    disabled: cargando
+  }, t.admin_entrar)));
+}
+function AdminServicios({
+  t,
+  token
+}) {
+  const [servicios, setServicios] = useState([]);
+  const [nuevo, setNuevo] = useState({
+    nombre_es: "",
+    nombre_fr: "",
+    nombre_en: "",
+    precio: ""
+  });
+  const cargar = useCallback(() => {
+    gasCall("getServicios", {}).then(r => {
+      if (r.ok) setServicios(r.servicios);
+    });
+  }, []);
+  useEffect(cargar, [cargar]);
+  const guardarPrecio = (s, nuevoPrecio) => {
+    gasCall("adminActualizarServicio", {
+      token,
+      id: s.ID,
+      precio: nuevoPrecio
+    }).then(cargar);
+  };
+  const eliminar = s => {
+    gasCall("adminEliminarServicio", {
+      token,
+      id: s.ID
+    }).then(cargar);
+  };
+  const agregar = () => {
+    if (!nuevo.nombre_es || !nuevo.precio) return;
+    gasCall("adminAgregarServicio", {
+      token,
+      ...nuevo
+    }).then(() => {
+      setNuevo({
+        nombre_es: "",
+        nombre_fr: "",
+        nombre_en: "",
+        precio: ""
+      });
+      cargar();
+    });
+  };
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "ES"), /*#__PURE__*/React.createElement("th", null, "FR"), /*#__PURE__*/React.createElement("th", null, "EN"), /*#__PURE__*/React.createElement("th", null, t.admin_precio), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, servicios.map(s => /*#__PURE__*/React.createElement("tr", {
+    key: s.ID
+  }, /*#__PURE__*/React.createElement("td", null, s.Nombre_ES), /*#__PURE__*/React.createElement("td", null, s.Nombre_FR), /*#__PURE__*/React.createElement("td", null, s.Nombre_EN), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    defaultValue: s.Precio,
+    style: {
+      width: 70
+    },
+    onBlur: e => guardarPrecio(s, e.target.value)
+  })), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+    className: "small-btn danger",
+    onClick: () => eliminar(s)
+  }, "×")))))), /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontFamily: "var(--mono)",
+      fontSize: 13,
+      textTransform: "uppercase",
+      marginTop: 32
+    }
+  }, t.admin_nuevo_servicio), /*#__PURE__*/React.createElement("div", {
+    className: "inline-form"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, "ES"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: nuevo.nombre_es,
+    onChange: e => setNuevo({
+      ...nuevo,
+      nombre_es: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, "FR"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: nuevo.nombre_fr,
+    onChange: e => setNuevo({
+      ...nuevo,
+      nombre_fr: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, "EN"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: nuevo.nombre_en,
+    onChange: e => setNuevo({
+      ...nuevo,
+      nombre_en: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.admin_precio), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: nuevo.precio,
+    onChange: e => setNuevo({
+      ...nuevo,
+      precio: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "cta-btn ghost",
+    onClick: agregar
+  }, t.admin_agregar)));
+}
+function AdminCalendario({
+  t,
+  token
+}) {
+  const [bloqueo, setBloqueo] = useState({
+    fecha: "",
+    horaInicio: "",
+    horaFin: "",
+    motivo: ""
+  });
+  const [pausaFecha, setPausaFecha] = useState("");
+  const [diasPausados, setDiasPausados] = useState([]);
+  const [bloqueos, setBloqueos] = useState([]);
+  const [citas, setCitas] = useState([]);
+  const cargar = useCallback(() => {
+    gasCall("adminGetDiasPausados", {
+      token
+    }).then(r => {
+      if (r.ok) setDiasPausados(r.dias);
+    });
+    gasCall("adminGetBloqueos", {
+      token
+    }).then(r => {
+      if (r.ok) setBloqueos(r.bloqueos);
+    });
+    const hoy = new Date().toISOString().slice(0, 10);
+    gasCall("adminGetCitas", {
+      token,
+      desde: hoy
+    }).then(r => {
+      if (r.ok) setCitas(r.citas);
+    });
+  }, [token]);
+  useEffect(cargar, [cargar]);
+  const crearBloqueo = () => {
+    if (!bloqueo.fecha || !bloqueo.horaInicio || !bloqueo.horaFin) return;
+    gasCall("adminBloquearSlot", {
+      token,
+      ...bloqueo
+    }).then(() => {
+      setBloqueo({
+        fecha: "",
+        horaInicio: "",
+        horaFin: "",
+        motivo: ""
+      });
+      cargar();
+    });
+  };
+  const quitarBloqueo = id => gasCall("adminEliminarBloqueo", {
+    token,
+    id
+  }).then(cargar);
+  const pausar = () => {
+    if (!pausaFecha) return;
+    gasCall("adminPausarDia", {
+      token,
+      fecha: pausaFecha
+    }).then(() => {
+      setPausaFecha("");
+      cargar();
+    });
+  };
+  const reanudar = fecha => gasCall("adminReanudarDia", {
+    token,
+    fecha
+  }).then(cargar);
+  const cancelarCita = id => gasCall("adminCancelarCita", {
+    token,
+    id
+  }).then(cargar);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontFamily: "var(--mono)",
+      fontSize: 13,
+      textTransform: "uppercase"
+    }
+  }, t.admin_bloquear), /*#__PURE__*/React.createElement("div", {
+    className: "inline-form"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.step2), /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: bloqueo.fecha,
+    onChange: e => setBloqueo({
+      ...bloqueo,
+      fecha: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, "Desde"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "08:00",
+    value: bloqueo.horaInicio,
+    onChange: e => setBloqueo({
+      ...bloqueo,
+      horaInicio: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, "Hasta"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "10:00",
+    value: bloqueo.horaFin,
+    onChange: e => setBloqueo({
+      ...bloqueo,
+      horaFin: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("label", null, t.admin_motivo), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: bloqueo.motivo,
+    onChange: e => setBloqueo({
+      ...bloqueo,
+      motivo: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "cta-btn ghost",
+    onClick: crearBloqueo
+  }, t.admin_agregar)), /*#__PURE__*/React.createElement("table", {
+    style: {
+      marginBottom: 32
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, t.step2), /*#__PURE__*/React.createElement("th", null, t.step3), /*#__PURE__*/React.createElement("th", null, t.admin_motivo), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, bloqueos.map(b => /*#__PURE__*/React.createElement("tr", {
+    key: b.ID
+  }, /*#__PURE__*/React.createElement("td", null, b.Fecha), /*#__PURE__*/React.createElement("td", null, b.HoraInicio, "-", b.HoraFin), /*#__PURE__*/React.createElement("td", null, b.Motivo), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+    className: "small-btn danger",
+    onClick: () => quitarBloqueo(b.ID)
+  }, "×")))))), /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontFamily: "var(--mono)",
+      fontSize: 13,
+      textTransform: "uppercase"
+    }
+  }, t.admin_pausar_dia), /*#__PURE__*/React.createElement("div", {
+    className: "inline-form"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "form-row"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: pausaFecha,
+    onChange: e => setPausaFecha(e.target.value)
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "cta-btn ghost",
+    onClick: pausar
+  }, t.admin_agregar)), /*#__PURE__*/React.createElement("table", {
+    style: {
+      marginBottom: 32
+    }
+  }, /*#__PURE__*/React.createElement("tbody", null, diasPausados.map((d, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i
+  }, /*#__PURE__*/React.createElement("td", null, d.Fecha), /*#__PURE__*/React.createElement("td", null, d.Motivo), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+    className: "small-btn",
+    onClick: () => reanudar(d.Fecha)
+  }, t.admin_reanudar)))))), /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontFamily: "var(--mono)",
+      fontSize: 13,
+      textTransform: "uppercase"
+    }
+  }, t.admin_citas_proximas), /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, t.step2), /*#__PURE__*/React.createElement("th", null, t.step3), /*#__PURE__*/React.createElement("th", null, t.admin_cliente), /*#__PURE__*/React.createElement("th", null, t.step1), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, citas.filter(c => c.Estado !== "Cancelada").map(c => /*#__PURE__*/React.createElement("tr", {
+    key: c.ID
+  }, /*#__PURE__*/React.createElement("td", null, c.Fecha), /*#__PURE__*/React.createElement("td", null, c.HoraInicio, "-", c.HoraFin), /*#__PURE__*/React.createElement("td", null, c.ClienteNombre, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--muted)"
+    }
+  }, c.ClienteTelefono)), /*#__PURE__*/React.createElement("td", null, c.ServicioNombre), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+    className: "small-btn danger",
+    onClick: () => cancelarCita(c.ID)
+  }, t.admin_cancelar)))))));
+}
+function AdminPanel() {
+  const t = DICT.es; // panel interno siempre en español
+  const [token, setToken] = useState(null);
+  const [tab, setTab] = useState("servicios");
+  if (!token) return /*#__PURE__*/React.createElement(AdminLogin, {
+    t: t,
+    onLogin: setToken
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    className: "admin-shell container"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "admin-tabs"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "admin-tab " + (tab === "servicios" ? "active" : ""),
+    onClick: () => setTab("servicios")
+  }, t.admin_tab_servicios), /*#__PURE__*/React.createElement("button", {
+    className: "admin-tab " + (tab === "calendario" ? "active" : ""),
+    onClick: () => setTab("calendario")
+  }, t.admin_tab_calendario)), tab === "servicios" ? /*#__PURE__*/React.createElement(AdminServicios, {
+    t: t,
+    token: token
+  }) : /*#__PURE__*/React.createElement(AdminCalendario, {
+    t: t,
+    token: token
+  }));
+}
+
+// ============================================================
+// Root: decide sitio público vs panel admin según el hash de la URL
+// ============================================================
+function Root() {
+  const [hash, setHash] = useState(window.location.hash);
+  useEffect(() => {
+    const onHash = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  if (hash === "#" + ADMIN_ROUTE) return /*#__PURE__*/React.createElement(AdminPanel, null);
+  return /*#__PURE__*/React.createElement(SitioPublico, null);
+}
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(Root, null));
+</script>
+</body>
+</html>

@@ -204,27 +204,21 @@ const ADMIN_ROUTE = "gestion-fc-2026";
 const TIKTOK_URL = "https://www.tiktok.com/@fais_cute";
 
 // ============================================================
-// Cliente JSONP para llamar al Apps Script (mismo patrón que HP Manager)
+// Cliente para llamar al Apps Script (fetch estándar — más robusto que JSONP,
+// que resultó frágil frente a sesiones de Google activas en el navegador)
 // ============================================================
-let jsonpCounter = 0;
 function gasCall(action, params) {
-  return new Promise((resolve, reject) => {
-    const callbackName = "gasCb_" + jsonpCounter++;
-    const query = new URLSearchParams({
-      action,
-      callback: callbackName,
-      ...params
+  const query = new URLSearchParams({ action, ...params });
+  const url = GAS_URL + "?" + query.toString();
+  return fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP " + res.status + " al llamar a " + action);
+      return res.json();
+    })
+    .catch(err => {
+      console.error("gasCall(" + action + ") falló:", err);
+      throw err;
     });
-    const script = document.createElement("script");
-    script.src = GAS_URL + "?" + query.toString();
-    window[callbackName] = data => {
-      resolve(data);
-      delete window[callbackName];
-      script.remove();
-    };
-    script.onerror = () => reject(new Error("Error de red al llamar a " + action));
-    document.body.appendChild(script);
-  });
 }
 
 // ============================================================
@@ -463,10 +457,12 @@ function Reservar({
   const [enviando, setEnviando] = useState(false);
   const [confirmado, setConfirmado] = useState(null);
   const [error, setError] = useState("");
+  const [errorCarga, setErrorCarga] = useState("");
   useEffect(() => {
     gasCall("getServicios", {}).then(r => {
       if (r.ok) setServicios(r.servicios);
-    });
+      else setErrorCarga(r.error || "Error cargando servicios");
+    }).catch(err => setErrorCarga(err.message));
   }, []);
   useEffect(() => {
     if (!fecha) {
@@ -481,8 +477,10 @@ function Reservar({
       if (r.ok) {
         setSlots(r.slots);
         setDiaPausado(!!r.diaPausado);
+      } else {
+        setErrorCarga(r.error || "Error cargando horarios");
       }
-    });
+    }).catch(err => setErrorCarga(err.message));
   }, [fecha]);
   const minDate = new Date().toISOString().slice(0, 10);
   const handleSubmit = () => {
@@ -540,7 +538,9 @@ function Reservar({
   }, [t.step1, t.step2, t.step3, t.step4].map((label, i) => /*#__PURE__*/React.createElement("span", {
     key: i,
     className: "step-pill " + (step === i + 1 ? "active" : step > i + 1 ? "done" : "")
-  }, i + 1, ". ", label))), /*#__PURE__*/React.createElement("div", {
+  }, i + 1, ". ", label))), errorCarga && /*#__PURE__*/React.createElement("p", {
+    className: "error-msg"
+  }, errorCarga), /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 36
     }

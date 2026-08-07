@@ -13,15 +13,13 @@
 
 <!--
   ============================================================
-  WIDGET DE CATÁLOGO (Instagram + TikTok) — EmbedSocial
+  WIDGET DE CATÁLOGO — SociableKIT (plan gratis)
   ============================================================
-  1. Crea una cuenta en https://embedsocial.com
-  2. Conecta @fais_cute (Instagram) y tu cuenta de TikTok
-  3. Crea un widget tipo "Feed" y copia el <script> que te dan
-  4. Pega ese <script> aquí abajo, sustituyendo este comentario.
-  El contenedor con id="embedsocial-catalogo" más abajo en el body
-  es donde EmbedSocial inyectará las fotos/videos automáticamente.
+  Instagram: ya conectado.
+  TikTok: pendiente — cuando tengas el código de SociableKIT para
+  @karenvanessaalvar92, pégalo aquí abajo, justo después del de Instagram.
 -->
+<script src="https://widgets.sociablekit.com/instagram-feed/widget.js" defer></script>
 
 <style>
   :root{
@@ -103,8 +101,8 @@
   }
 
   /* ---------- Catálogo ---------- */
-  #embedsocial-catalogo{
-    min-height:240px;border:1px dashed var(--border-strong);border-radius:var(--radius);
+  .catalogo-pendiente{
+    margin-top:20px;min-height:120px;border:1px dashed var(--border-strong);border-radius:var(--radius);
     display:flex;align-items:center;justify-content:center;color:var(--muted);
     font-family:var(--mono);font-size:13px;text-align:center;padding:24px;
   }
@@ -150,6 +148,30 @@
   .slot-box:not(.disabled):hover{border-color:var(--accent);}
 
   .empty-note{color:var(--muted);font-size:14px;font-style:italic;}
+
+  /* ---------- Calendario mensual ---------- */
+  .calendario-mes{max-width:340px;}
+  .calendario-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-nav{
+    background:transparent;border:1px solid var(--border-strong);color:var(--text);
+    width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;line-height:1;
+  }
+  .cal-nav:hover{border-color:var(--accent);color:var(--accent);}
+  .cal-mes-label{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+  .calendario-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+  .cal-weekday{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);padding-bottom:2px;}
+  .cal-day{
+    aspect-ratio:1;border:1px solid var(--border);border-radius:8px;background:transparent;
+    color:var(--text);font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .15s;
+  }
+  .cal-day.empty{border:none;cursor:default;}
+  .cal-day.disponible{border-color:var(--border-strong);}
+  .cal-day.disponible:hover{border-color:var(--accent);color:var(--accent);}
+  .cal-day.selected{background:var(--accent);color:#20140C;border-color:var(--accent);font-weight:600;}
+  .cal-day.lleno{color:var(--muted);border-color:var(--border);text-decoration:line-through;cursor:not-allowed;opacity:0.45;}
+  .cal-day.pausado{color:var(--muted);border-style:dashed;cursor:not-allowed;opacity:0.45;}
+  .cal-day.pasado{color:var(--muted);border-color:transparent;cursor:not-allowed;opacity:0.2;}
+  .cal-day.cargando{color:var(--muted);border-color:var(--border);opacity:0.35;cursor:wait;}
 
   .confirm-box{
     border:1px solid var(--accent);border-radius:var(--radius);padding:28px;
@@ -201,7 +223,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbwO4uDxVPKmwADqyHqD4v13
 // Ruta secreta del panel de administración — cámbiala por algo que solo tú conozcas.
 const ADMIN_ROUTE = "gestion-fc-2026";
 // TODO Jeff: reemplazar por el usuario real de TikTok de Fais Cute
-const TIKTOK_URL = "https://www.tiktok.com/@fais_cute";
+const TIKTOK_URL = "https://www.tiktok.com/@karenvanessaalvar92";
 
 // ============================================================
 // Cliente para llamar al Apps Script (fetch estándar — más robusto que JSONP,
@@ -417,7 +439,7 @@ function Header({
 }
 
 // ============================================================
-// Catálogo (contenedor para el widget de EmbedSocial)
+// Catálogo (widgets de SociableKIT: Instagram + TikTok)
 // ============================================================
 function Catalogo({
   t
@@ -430,13 +452,96 @@ function Catalogo({
   }, t.catalogo_eyebrow), /*#__PURE__*/React.createElement("h2", {
     className: "block-title"
   }, t.catalogo_title), /*#__PURE__*/React.createElement("div", {
-    id: "embedsocial-catalogo",
-    className: "embedsocial-hashtag",
-    "data-ref": "TU_WIDGET_REF_AQUI"
-  }, t.catalogo_loading));
+    className: "sk-instagram-feed",
+    "data-embed-id": "25703585"
+  }), /*#__PURE__*/React.createElement("div", {
+    id: "catalogo-tiktok-pendiente",
+    className: "catalogo-pendiente"
+  }, "TikTok — próximamente"));
 }
 
 // ============================================================
+const MESES = {
+  es: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+  fr: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+};
+const DIAS_SEMANA = {
+  es: ["L", "M", "M", "J", "V", "S", "D"],
+  fr: ["L", "M", "M", "J", "V", "S", "D"],
+  en: ["M", "T", "W", "T", "F", "S", "S"]
+};
+function pad2(n) {
+  return (n < 10 ? "0" : "") + n;
+}
+function CalendarioMes({
+  fecha,
+  setFecha,
+  lang
+}) {
+  const hoy = new Date();
+  const [cursor, setCursor] = useState(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+  const [dias, setDias] = useState(null);
+  useEffect(() => {
+    const mesStr = cursor.getFullYear() + "-" + pad2(cursor.getMonth() + 1);
+    setDias(null);
+    gasCall("getDisponibilidadMes", {
+      mes: mesStr
+    }).then(r => {
+      if (r.ok) setDias(r.dias);else setDias([]);
+    }).catch(() => setDias([]));
+  }, [cursor.getFullYear(), cursor.getMonth()]);
+  const estadoPorFecha = {};
+  (dias || []).forEach(d => {
+    estadoPorFecha[d.fecha] = d.estado;
+  });
+  const primerDiaSemana = (cursor.getDay() + 6) % 7; // lunes = 0
+  const diasEnMes = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+  const celdas = [];
+  for (let i = 0; i < primerDiaSemana; i++) celdas.push(null);
+  for (let d = 1; d <= diasEnMes; d++) celdas.push(d);
+  const cambiarMes = delta => {
+    setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + delta, 1));
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "calendario-mes"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "calendario-header"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "cal-nav",
+    onClick: () => cambiarMes(-1)
+  }, "‹"), /*#__PURE__*/React.createElement("span", {
+    className: "cal-mes-label"
+  }, MESES[lang][cursor.getMonth()], " ", cursor.getFullYear()), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "cal-nav",
+    onClick: () => cambiarMes(1)
+  }, "›")), /*#__PURE__*/React.createElement("div", {
+    className: "calendario-grid"
+  }, DIAS_SEMANA[lang].map((n, i) => /*#__PURE__*/React.createElement("span", {
+    key: "w" + i,
+    className: "cal-weekday"
+  }, n))), /*#__PURE__*/React.createElement("div", {
+    className: "calendario-grid"
+  }, celdas.map((d, i) => {
+    if (d === null) return /*#__PURE__*/React.createElement("span", {
+      key: "e" + i,
+      className: "cal-day empty"
+    });
+    const fechaStr = cursor.getFullYear() + "-" + pad2(cursor.getMonth() + 1) + "-" + pad2(d);
+    const estado = dias === null ? "cargando" : estadoPorFecha[fechaStr] || "disponible";
+    const seleccionado = fecha === fechaStr;
+    const disabled = estado === "pasado" || estado === "pausado" || estado === "lleno" || estado === "cargando";
+    return /*#__PURE__*/React.createElement("button", {
+      key: fechaStr,
+      type: "button",
+      className: "cal-day " + estado + (seleccionado ? " selected" : ""),
+      disabled: disabled,
+      onClick: () => setFecha(fechaStr)
+    }, d);
+  })));
+}
 // Flujo de reserva
 // ============================================================
 function Reservar({
@@ -482,7 +587,6 @@ function Reservar({
       }
     }).catch(err => setErrorCarga(err.message));
   }, [fecha]);
-  const minDate = new Date().toISOString().slice(0, 10);
   const handleSubmit = () => {
     if (!servicioSel || !fecha || !slotSel || !form.nombre || !form.telefono) return;
     setEnviando(true);
@@ -573,14 +677,11 @@ function Reservar({
     style: {
       marginBottom: 14
     }
-  }, t.elige_fecha), /*#__PURE__*/React.createElement("div", {
-    className: "form-row"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "date",
-    min: minDate,
-    value: fecha,
-    onChange: e => setFecha(e.target.value)
-  }))), servicioSel && fecha && /*#__PURE__*/React.createElement("div", {
+  }, t.elige_fecha), /*#__PURE__*/React.createElement(CalendarioMes, {
+    fecha: fecha,
+    setFecha: setFecha,
+    lang: lang
+  })), servicioSel && fecha && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 36
     }

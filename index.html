@@ -57,6 +57,12 @@
     font-family:var(--serif);font-size:28px;letter-spacing:0.14em;
     text-transform:uppercase;font-weight:600;
   }
+  .social-links{display:flex;gap:14px;}
+  .social-link{
+    font-family:var(--mono);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;
+    color:var(--muted);text-decoration:none;transition:color .2s;
+  }
+  .social-link:hover{color:var(--accent);}
   .lang-switch{display:flex;gap:6px;}
   .lang-switch button{
     background:transparent;border:1px solid var(--border);color:var(--muted);
@@ -191,9 +197,11 @@ const {
 // ============================================================
 // CONFIGURACIÓN — RELLENAR DESPUÉS DE DESPLEGAR EL APPS SCRIPT
 // ============================================================
-const GAS_URL = "https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwO4uDxVPKmwADqyHqD4v13Jsso-SmLbhQ-eANYyPab61GIuTTG3NkpHJqkFTtGzq_6/exec";
 // Ruta secreta del panel de administración — cámbiala por algo que solo tú conozcas.
 const ADMIN_ROUTE = "gestion-fc-2026";
+// TODO Jeff: reemplazar por el usuario real de TikTok de Fais Cute
+const TIKTOK_URL = "https://www.tiktok.com/@fais_cute";
 
 // ============================================================
 // Cliente JSONP para llamar al Apps Script (mismo patrón que HP Manager)
@@ -386,12 +394,32 @@ function Header({
   }, /*#__PURE__*/React.createElement("div", {
     className: "logo"
   }, "Fais Cute"), /*#__PURE__*/React.createElement("div", {
+    style: { display: "flex", alignItems: "center", gap: 18 }
+  },
+  /*#__PURE__*/React.createElement("div", {
+    className: "social-links"
+  },
+  /*#__PURE__*/React.createElement("a", {
+    href: "https://www.instagram.com/fais_cute/",
+    target: "_blank",
+    rel: "noreferrer",
+    className: "social-link"
+  }, "Instagram"),
+  /*#__PURE__*/React.createElement("a", {
+    href: TIKTOK_URL,
+    target: "_blank",
+    rel: "noreferrer",
+    className: "social-link"
+  }, "TikTok")
+  ),
+  /*#__PURE__*/React.createElement("div", {
     className: "lang-switch"
   }, ["es", "fr", "en"].map(l => /*#__PURE__*/React.createElement("button", {
     key: l,
     className: lang === l ? "active" : "",
     onClick: () => setLang(l)
-  }, l.toUpperCase()))));
+  }, l.toUpperCase())))
+  ));
 }
 
 // ============================================================
@@ -620,7 +648,11 @@ function Footer({
     href: "https://www.instagram.com/fais_cute/",
     target: "_blank",
     rel: "noreferrer"
-  }, "@fais_cute"));
+  }, "@fais_cute"), " · ", /*#__PURE__*/React.createElement("a", {
+    href: TIKTOK_URL,
+    target: "_blank",
+    rel: "noreferrer"
+  }, "TikTok"));
 }
 
 // ============================================================

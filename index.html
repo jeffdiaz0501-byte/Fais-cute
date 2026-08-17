@@ -211,6 +211,14 @@
   }
   .small-btn:hover{border-color:var(--accent);color:var(--accent);}
   .small-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+  .badge-pendiente{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;
+    color:#D9A441;border:1px solid #D9A441;border-radius:999px;padding:3px 10px;
+  }
+  .badge-confirmada{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;
+    color:#6FAE7C;border:1px solid #6FAE7C;border-radius:999px;padding:3px 10px;
+  }
   .error-msg{color:var(--danger);font-size:13px;margin-top:8px;}
   .inline-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px;}
   .inline-form .form-row{margin-bottom:0;max-width:180px;}
@@ -309,8 +317,10 @@ const DICT = {
     email: "Email (opcional)",
     confirmar: "Confirmar cita",
     enviando: "Enviando...",
-    confirmada_title: "¡Cita confirmada!",
-    confirmada_body: "Te esperamos el",
+    confirmada_title: "¡Solicitud recibida!",
+    confirmada_body: "Tu cita para el",
+    deposito_texto: "quedará reservada, pero para confirmarla necesitamos un depósito de 10€ por WhatsApp al número de la empresa. En cuanto lo recibamos, te llega un email confirmando tu cita.",
+    deposito_boton: "Enviar depósito por WhatsApp",
     error_generico: "Algo salió mal, intenta de nuevo.",
     footer: "Síguenos",
     volver: "Elegir otra fecha/hora",
@@ -330,7 +340,9 @@ const DICT = {
     admin_reanudar: "Reanudar",
     admin_citas_proximas: "Próximas citas",
     admin_cliente: "Cliente",
-    admin_cancelar: "Cancelar"
+    admin_cancelar: "Cancelar",
+    admin_estado: "Estado",
+    admin_confirmar: "Confirmar",
   },
   fr: {
     nav_catalogo: "Catalogue",
@@ -358,8 +370,10 @@ const DICT = {
     email: "Email (optionnel)",
     confirmar: "Confirmer le rendez-vous",
     enviando: "Envoi...",
-    confirmada_title: "Rendez-vous confirmé !",
-    confirmada_body: "On vous attend le",
+    confirmada_title: "Demande reçue !",
+    confirmada_body: "Votre rendez-vous du",
+    deposito_texto: "est réservé, mais pour le confirmer nous avons besoin d'un dépôt de 10€ par WhatsApp au numéro de l'entreprise. Dès réception, vous recevrez un email de confirmation.",
+    deposito_boton: "Envoyer le dépôt par WhatsApp",
     error_generico: "Une erreur est survenue, réessayez.",
     footer: "Suivez-nous",
     volver: "Choisir une autre date/heure",
@@ -407,8 +421,10 @@ const DICT = {
     email: "Email (optional)",
     confirmar: "Confirm appointment",
     enviando: "Sending...",
-    confirmada_title: "Appointment confirmed!",
-    confirmada_body: "See you on",
+    confirmada_title: "Request received!",
+    confirmada_body: "Your appointment on",
+    deposito_texto: "is on hold, but to confirm it we need a 10€ deposit via WhatsApp to the business number. Once received, you'll get a confirmation email.",
+    deposito_boton: "Send deposit via WhatsApp",
     error_generico: "Something went wrong, please try again.",
     footer: "Follow us",
     volver: "Choose another date/time",
@@ -687,12 +703,18 @@ function Reservar({
       id: "reservar"
     }, /*#__PURE__*/React.createElement("div", {
       className: "confirm-box"
-    }, /*#__PURE__*/React.createElement("h3", null, t.confirmada_title), /*#__PURE__*/React.createElement("p", null, t.confirmada_body, " ", /*#__PURE__*/React.createElement("strong", null, confirmado.fecha), " — ", confirmado.slot.inicio, " a ", confirmado.slot.fin, "."), /*#__PURE__*/React.createElement("p", {
+    }, /*#__PURE__*/React.createElement("h3", null, t.confirmada_title), /*#__PURE__*/React.createElement("p", null, t.confirmada_body, " ", /*#__PURE__*/React.createElement("strong", null, confirmado.fecha), " — ", confirmado.slot.inicio, " a ", confirmado.slot.fin, " ", t.deposito_texto), /*#__PURE__*/React.createElement("p", {
       style: {
         color: "var(--muted)",
-        fontSize: "14px"
+        fontSize: "14px",
+        marginBottom: 20
       }
-    }, nombreServicio(confirmado.servicio, lang))));
+    }, nombreServicio(confirmado.servicio, lang)), /*#__PURE__*/React.createElement("a", {
+      href: "https://wa.me/33743527820?countryName=FR&countryCode=33&phoneNumber=743527820",
+      target: "_blank",
+      rel: "noreferrer",
+      className: "cta-btn"
+    }, t.deposito_boton)));
   }
   const pasos = [t.step1, t.step2, t.step3, t.step4];
   return /*#__PURE__*/React.createElement("section", {
@@ -1078,6 +1100,10 @@ function AdminCalendario({
     token,
     id
   }).then(cargar);
+  const confirmarCita = id => gasCall("adminConfirmarCita", {
+    token,
+    id
+  }).then(cargar);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
     style: {
       fontFamily: "var(--mono)",
@@ -1168,13 +1194,20 @@ function AdminCalendario({
       fontSize: 13,
       textTransform: "uppercase"
     }
-  }, t.admin_citas_proximas), /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, t.step2), /*#__PURE__*/React.createElement("th", null, t.step3), /*#__PURE__*/React.createElement("th", null, t.admin_cliente), /*#__PURE__*/React.createElement("th", null, t.step1), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, citas.filter(c => c.Estado !== "Cancelada").map(c => /*#__PURE__*/React.createElement("tr", {
+  }, t.admin_citas_proximas), /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, t.step2), /*#__PURE__*/React.createElement("th", null, t.step3), /*#__PURE__*/React.createElement("th", null, t.admin_cliente), /*#__PURE__*/React.createElement("th", null, t.step1), /*#__PURE__*/React.createElement("th", null, t.admin_estado), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, citas.filter(c => c.Estado !== "Cancelada").map(c => /*#__PURE__*/React.createElement("tr", {
     key: c.ID
   }, /*#__PURE__*/React.createElement("td", null, c.Fecha), /*#__PURE__*/React.createElement("td", null, c.HoraInicio, "-", c.HoraFin), /*#__PURE__*/React.createElement("td", null, c.ClienteNombre, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
     style: {
       color: "var(--muted)"
     }
-  }, c.ClienteTelefono)), /*#__PURE__*/React.createElement("td", null, c.ServicioNombre), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+  }, c.ClienteTelefono)), /*#__PURE__*/React.createElement("td", null, c.ServicioNombre), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("span", {
+    className: c.Estado === "Pendiente" ? "badge-pendiente" : "badge-confirmada"
+  }, c.Estado)), /*#__PURE__*/React.createElement("td", {
+    style: { display: "flex", gap: 6 }
+  }, c.Estado === "Pendiente" && /*#__PURE__*/React.createElement("button", {
+    className: "small-btn",
+    onClick: () => confirmarCita(c.ID)
+  }, t.admin_confirmar), /*#__PURE__*/React.createElement("button", {
     className: "small-btn danger",
     onClick: () => cancelarCita(c.ID)
   }, t.admin_cancelar)))))));
